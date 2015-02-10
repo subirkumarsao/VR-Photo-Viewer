@@ -1,8 +1,6 @@
 package com.lazybuds.vrphotoviewer;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -11,9 +9,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -23,10 +23,18 @@ import android.widget.LinearLayout;
 public class MainActivity extends Activity implements
 		MagnetoSensor.OnCardboardTriggerListener {
 
-	private List<Integer> images = new ArrayList<Integer>();
+	private static final int HEIGHT = 800;
+	private static final int WIDTH = 800;
+
+	private File[] directories = null;
+	private int dirPosition = 0;
+
+	private File[] images = null;
 	private int position = 0;
 	private MagnetoSensor mMagnetSensor;
 	private Bitmap des;
+
+	boolean imageFound = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,31 +50,62 @@ public class MainActivity extends Activity implements
 
 		setContentView(R.layout.activity_main);
 
-		loadDrawables();
-
 		configureDisplay();
 
 		this.mMagnetSensor = new MagnetoSensor(this);
 		this.mMagnetSensor.setOnCardboardTriggerListener(this);
 
+		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear_layout);
+
+		linearLayout.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				nextImage();
+			}
+		});
+
+		loadDrawables();
+		loadFirstImage();
 		displayImage();
 	}
 
-	public void loadDrawables() {
-
-		Field[] drawables = R.drawable.class.getFields();
-		for (Field f : drawables) {
-			try {
-
-				if (f.getName().startsWith("sample")) {
-					images.add(f.getInt(null));
+	private void loadFirstImage() {
+		imageFound = false;
+		for (int i = 0; i < directories.length; i++) {
+			if (!directories[i].isDirectory()) {
+				continue;
+			}
+			File[] files = directories[i].listFiles();
+			for (int j = 0; j < files.length; j++) {
+				if (isImage(files[j])) {
+					images = files;
+					imageFound = true;
+					position = j;
+					dirPosition = i;
+					break;
 				}
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+			}
+			if (imageFound) {
+				break;
 			}
 		}
+	}
+
+	private boolean isImage(File file) {
+		if ((file == null) || !file.exists() || file.isDirectory()) {
+			return false;
+		}
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(file.getPath(), options);
+		return (options.outWidth != -1) && (options.outHeight != -1);
+	}
+
+	public void loadDrawables() {
+		File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+				Environment.DIRECTORY_DCIM).toString());
+		directories = imageDir.listFiles();
 	}
 
 	public void configureDisplay() {
@@ -79,7 +118,7 @@ public class MainActivity extends Activity implements
 
 		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear_layout);
 		linearLayout.setBackgroundColor(Color.BLACK);
-		
+
 		ImageView imageViewLeft = (ImageView) findViewById(R.id.image_view_left);
 		ImageView imageViewRight = (ImageView) findViewById(R.id.image_view_right);
 
@@ -111,20 +150,32 @@ public class MainActivity extends Activity implements
 		ImageView imageViewLeft = (ImageView) findViewById(R.id.image_view_left);
 		ImageView imageViewRight = (ImageView) findViewById(R.id.image_view_right);
 
-		if(des!=null){
+		if (des != null) {
 			des.recycle();
 		}
-		
-		Bitmap src = BitmapFactory.decodeResource(getResources(), images.get(position));
-		des = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
-		
-		FishEyeFilter.filter(src, des,800);
-		
-		
-		imageViewLeft.setImageBitmap(des);
-		imageViewRight.setImageBitmap(des);
+
+		Bitmap src = null;
+
+		if (!imageFound) {
+			src = BitmapFactory.decodeResource(getResources(),
+					R.drawable.no_image);
+		} else {
+			src = BitmapFactory.decodeFile(images[position].getAbsolutePath());
+		}
+
+		Bitmap resized = Bitmap.createScaledBitmap(src, WIDTH, HEIGHT, true);
+
 		src.recycle();
 		src = null;
+
+		des = Bitmap.createBitmap(WIDTH, HEIGHT, resized.getConfig());
+
+		FishEyeFilter.filter(resized, des, 800);
+
+		imageViewLeft.setImageBitmap(des);
+		imageViewRight.setImageBitmap(des);
+		resized.recycle();
+		resized = null;
 	}
 
 	@Override
@@ -136,21 +187,34 @@ public class MainActivity extends Activity implements
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
 	protected void onResume() {
 		super.onResume();
 		this.mMagnetSensor.start();
 	}
 
+	@Override
 	protected void onPause() {
 		super.onPause();
 		this.mMagnetSensor.stop();
 	}
 
 	public void nextImage() {
-		position++;
-		if (position >= images.size()) {
-			position = 0;
-		}
+
+		do {
+			position++;
+			if ((position >= images.length)) {
+				do {
+					dirPosition++;
+					if (dirPosition >= directories.length) {
+						dirPosition = 0;
+					}
+				} while (!directories[dirPosition].isDirectory()
+						|| (directories[dirPosition].list().length == 0));
+				images = directories[dirPosition].listFiles();
+				position = 0;
+			}
+		} while (!isImage(images[position]));
 		displayImage();
 	}
 

@@ -23,11 +23,12 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
-        public static final int sample_01=0x7f020001;
-        public static final int sample_02=0x7f020002;
-        public static final int sample_03=0x7f020003;
-        public static final int sample_04=0x7f020004;
-        public static final int sample_05=0x7f020005;
+        public static final int no_image=0x7f020001;
+        public static final int sample_01=0x7f020002;
+        public static final int sample_02=0x7f020003;
+        public static final int sample_03=0x7f020004;
+        public static final int sample_04=0x7f020005;
+        public static final int sample_05=0x7f020006;
     }
     public static final class id {
         public static final int action_settings=0x7f080003;
