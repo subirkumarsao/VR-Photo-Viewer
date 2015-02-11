@@ -200,6 +200,9 @@ public class MainActivity extends Activity implements
 	}
 
 	public void nextImage() {
+		if(!imageFound){
+			return;
+		}
 
 		do {
 			position++;
