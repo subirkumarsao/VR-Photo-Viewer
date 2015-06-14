@@ -5,8 +5,8 @@
     android:versionName="1.1" >
 
     <uses-sdk
-        android:minSdkVersion="19"
-        android:targetSdkVersion="19" />
+        android:minSdkVersion="13"
+        android:targetSdkVersion="21" />
     
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     
@@ -14,8 +14,7 @@
                       android:normalScreens="true"
                       android:largeScreens="false"
                       android:xlargeScreens="false"
-                      android:requiresSmallestWidthDp="360"
-                      android:compatibleWidthLimitDp = "370" />
+                      android:compatibleWidthLimitDp = "500" />
 
     <application
         android:allowBackup="true"
