@@ -24,5 +24,6 @@ public class Constants {
 	public static final int IMAGE_WIDTH = 200;
 	
 	public static final int IMAGE_HEIGHT = 200;
-	
+
+	public static final int WALL_COLOR = Color.GRAY;
 }

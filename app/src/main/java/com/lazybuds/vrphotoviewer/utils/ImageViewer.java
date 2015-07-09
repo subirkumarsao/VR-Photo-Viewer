@@ -69,25 +69,13 @@ public class ImageViewer {
 		back.setOnSelectListener(backSelectHandler);
 	}
 
-	public void init(File currentImage, RajawaliVRRenderer renderer,
+	public void init(RajawaliVRRenderer renderer,
 			List<Selectable> selectableObjects) {
 		this.selectableObjects = selectableObjects;
-		this.currentImage = currentImage;
 		this.renderer = renderer;
-		this.currentPath = currentImage.getParentFile();
-		this.files = this.currentPath.listFiles();
 
-		try {
-			imageItem.setImage(currentImage.getCanonicalPath());
-		} catch (IOException e) {
-			Log.e("ERROR", e.getMessage());
-		}
 		renderer.getCurrentScene().addChild(back);
 		renderer.getCurrentScene().addChild(imageItem);
-		
-		selectableObjects.add(back);
-		selectableObjects.add(imageItem);
-		initControls();
 	}
 
 	private void initControls() {

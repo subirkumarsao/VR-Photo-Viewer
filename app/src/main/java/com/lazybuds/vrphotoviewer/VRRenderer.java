@@ -6,6 +6,7 @@ import android.util.Log;
 import com.lazybuds.vrphotoviewer.listeners.FolderSelectHandler;
 import com.lazybuds.vrphotoviewer.objects.Event;
 import com.lazybuds.vrphotoviewer.objects.Selectable;
+import com.lazybuds.vrphotoviewer.objects.VRPlane;
 import com.lazybuds.vrphotoviewer.utils.BitmapUtil;
 import com.lazybuds.vrphotoviewer.utils.FileBrowser;
 import com.lazybuds.vrphotoviewer.utils.FileBrowserUtil;
@@ -27,6 +28,10 @@ public class VRRenderer extends RajawaliVRRenderer {
     private int selectedIndex;
     private ImageViewer imageViewer;
 
+    private VRPlane leftWall;
+    private VRPlane rightWall;
+    private VRPlane backWall;
+
     public void initScene() {
 
         selectableObjects = new ArrayList<>();
@@ -37,6 +42,27 @@ public class VRRenderer extends RajawaliVRRenderer {
 
         getCurrentCamera().setFarPlane(1000);
         addBrowserObjects(null);
+
+        imageViewer = new ImageViewer();
+        imageViewer.setFolderSelectHandler(new ImageBackSelectHandler());
+        imageViewer.init(this, selectableObjects);
+        imageViewer.hide();
+
+        leftWall = new VRPlane("Left Wall", Constants.WALL_COLOR, 20, 20);
+        leftWall.setX(-20);
+        leftWall.plane.setRotY(-90);
+
+        rightWall = new VRPlane("Right Wall", Constants.WALL_COLOR, 20, 20);
+        rightWall.setX(20);
+        rightWall.plane.setRotY(90);
+
+        backWall = new VRPlane("Back Wall", Constants.WALL_COLOR, 20, 20);
+        backWall.setZ(20);
+        backWall.plane.setRotY(180);
+
+        getCurrentScene().addChild(leftWall);
+        getCurrentScene().addChild(rightWall);
+        getCurrentScene().addChild(backWall);
 
         super.initScene();
 
@@ -150,7 +176,7 @@ public class VRRenderer extends RajawaliVRRenderer {
         if (imageViewer == null) {
             imageViewer = new ImageViewer();
             imageViewer.setFolderSelectHandler(new ImageBackSelectHandler());
-            imageViewer.init(file, this, selectableObjects);
+            imageViewer.init(this, selectableObjects);
         }else{
             imageViewer.show(file);
         }

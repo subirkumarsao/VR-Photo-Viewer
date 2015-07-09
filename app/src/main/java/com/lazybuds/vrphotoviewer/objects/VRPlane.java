@@ -21,7 +21,7 @@ public class VRPlane extends Object3D {
 
 		plane = new Plane(height, width, 1, 1, 1);
 		
-		Bitmap bitmap = BitmapUtil.textAsString(label, 200, Color.WHITE,(int)height*100,(int)width*100);
+		Bitmap bitmap = BitmapUtil.textAsString(label, 40, Color.WHITE,(int)height*10,(int)width*10);
 		
 		material = new Material();
 		try {
