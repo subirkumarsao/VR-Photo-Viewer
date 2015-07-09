@@ -19,7 +19,7 @@ public class VRPlane extends Object3D {
 
 	public VRPlane(String label,int color, float height, float width) {
 
-		plane = new Plane(height, width, 1, 1, 1);
+		plane = new Plane(width, height, 1, 1, 1);
 		
 		Bitmap bitmap = BitmapUtil.textAsString(label, 40, Color.WHITE,(int)height*10,(int)width*10);
 		
