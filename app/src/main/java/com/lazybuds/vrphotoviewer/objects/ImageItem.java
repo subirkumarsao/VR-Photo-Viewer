@@ -74,7 +74,7 @@ public class ImageItem extends Object3D implements Selectable {
 	@Override
 	public void onBlur() {
 		setZ(z);
-		material.setColorInfluence(0.5f);
+		material.setColorInfluence(0f);
 		isViewed = false;
 		if(onBlurListener!=null){
 			Event e = new Event();
